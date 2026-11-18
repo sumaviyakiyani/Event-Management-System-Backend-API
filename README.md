@@ -30,8 +30,7 @@ tests/          conftest.py (test DB setup) and test_events.py
 ## Installation
 ```bash
 python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+./.venv/Scripts/python.exe -m pip install -r requirements.txt
 ```
 
 ## PostgreSQL setup
@@ -45,16 +44,19 @@ CREATE DATABASE event_management_test OWNER event_user;
 
 ## Environment variables
 ```bash
-cp .env.example .env     # Windows: copy .env.example .env
+if [ ! -f .env ]; then cp .env.example .env; fi
 ```
-Edit `.env`: put your password in `DATABASE_URL` and `TEST_DATABASE_URL`, and set `JWT_SECRET_KEY`
+Edit `.env`: set `DATABASE_URL` to the main database and `TEST_DATABASE_URL` to the separate
+test database. Both must be full PostgreSQL connection URLs; URL-encode reserved characters in
+the username or password. Set `JWT_SECRET_KEY`
 (`python -c "import secrets; print(secrets.token_urlsafe(48))"`). `.env` is git-ignored; never commit it.
 
 ## Run
 ```bash
-uvicorn app.main:app --reload
+./.venv/Scripts/python.exe -m uvicorn app.main:app --reload
 ```
-On startup the app checks the PostgreSQL connection and creates the tables. If the database is unreachable it stops with a clear error.
+Run the command from this project directory. On startup the app checks the PostgreSQL connection
+and creates missing tables. If the database is unreachable it stops with a clear error.
 
 - Swagger UI: http://127.0.0.1:8000/docs
 - Health check: http://127.0.0.1:8000/health
@@ -63,7 +65,7 @@ To use protected routes in Swagger: call `POST /auth/register`, then click **Aut
 
 ## Tests
 ```bash
-pytest -v
+./.venv/Scripts/python.exe -m pytest -v
 ```
 Tests use `TEST_DATABASE_URL` and refuse to run against the main database.
 
